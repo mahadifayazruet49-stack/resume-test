@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Md Mahadi Fayaz — Civil Engineering Student</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1B2B;
+    --ink2:#16263B;
+    --paper:#F7F4EC;
+    --rust:#C8543C;
+    --steel:#6C8A9C;
+    --steel-dim:#7C93A2;
+    --line: rgba(247,244,236,0.16);
+    --line-soft: rgba(15,27,43,0.14);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Space Grotesk', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.04em;
+  }
+
+  .label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--steel);
+  }
+
+  /* ---------- Blueprint grid backdrop ---------- */
+  .blueprint-bg{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    opacity:0.35;
+    mask-image:linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  }
+
+  .content{ position:relative; z-index:1; }
+
+  /* ---------- Sheet frame ---------- */
+  .sheet{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+
+  .corner-mark{
+    position:fixed;
+    width:18px; height:18px;
+    border-color:var(--steel);
+    opacity:0.55;
+    z-index:5;
+  }
+  .corner-mark.tl{ top:18px; left:18px; border-top:1px solid; border-left:1px solid; }
+  .corner-mark.tr{ top:18px; right:18px; border-top:1px solid; border-right:1px solid; }
+  .corner-mark.bl{ bottom:18px; left:18px; border-bottom:1px solid; border-left:1px solid; }
+  .corner-mark.br{ bottom:18px; right:18px; border-bottom:1px solid; border-right:1px solid; }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:sticky;
+    top:0;
+    z-index:10;
+    backdrop-filter:blur(10px);
+    background:rgba(15,27,43,0.72);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1100px;
+    margin:0 auto;
+    padding:18px 32px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .nav-mark{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem;
+    letter-spacing:0.05em;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .nav-mark .dot{
+    width:7px; height:7px;
+    background:var(--rust);
+    border-radius:50%;
+    box-shadow:0 0 0 3px rgba(200,84,60,0.18);
+  }
+  .nav-links{ display:flex; gap:28px; }
+  .nav-links a{
+    font-size:0.82rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--steel-dim);
+    transition:color 0.25s ease;
+    position:relative;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{ color:var(--paper); }
+  .nav-links a:focus-visible{ outline:1px solid var(--rust); outline-offset:4px; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-top:90px;
+    padding-bottom:60px;
+  }
+
+  .hero-eyebrow{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:34px;
+    opacity:0;
+    animation:riseIn 0.7s ease forwards;
+    animation-delay:0.1s;
+  }
+  .hero-eyebrow .rule{ width:40px; height:1px; background:var(--rust); }
+
+  h1.name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(2.8rem, 7vw, 5.6rem);
+    line-height:0.98;
+    letter-spacing:-0.01em;
+    color:var(--paper);
+    opacity:0;
+    animation:riseIn 0.8s ease forwards;
+    animation-delay:0.22s;
+  }
+  h1.name em{
+    font-style:italic;
+    font-weight:500;
+    color:var(--rust);
+  }
+
+  .tagline-row{
+    margin-top:28px;
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+    opacity:0;
+    animation:riseIn 0.8s ease forwards;
+    animation-delay:0.38s;
+  }
+
+  .tagline{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(1.15rem, 2.4vw, 1.6rem);
+    color:var(--steel-dim);
+    position:relative;
+    padding-bottom:6px;
+  }
+  /* tagline drawn as a beam under load — slight sag in the underline */
+  .tagline svg{
+    position:absolute;
+    left:0; bottom:-2px;
+    width:100%; height:10px;
+    overflow:visible;
+  }
+  .tagline path{
+    fill:none;
+    stroke:var(--rust);
+    stroke-width:1.4;
+    stroke-dasharray:4 1000;
+    animation:drawBeam 1.4s ease forwards;
+    animation-delay:0.9s;
+  }
+  @keyframes drawBeam{ to{ stroke-dasharray:1000 0; } }
+
+  .hero-role{
+    font-size:1.6rem;
+    color:var(--steel);
+  }
+
+  .hero-desc{
+    margin-top:34px;
+    max-width:540px;
+    font-size:1rem;
+    line-height:1.7;
+    color:rgba(247,244,236,0.72);
+    opacity:0;
+    animation:riseIn 0.8s ease forwards;
+    animation-delay:0.5s;
+  }
+
+  .hero-actions{
+    margin-top:40px;
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    opacity:0;
+    animation:riseIn 0.8s ease forwards;
+    animation-delay:0.62s;
+  }
+
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:14px 26px;
+    border-radius:2px;
+    transition:all 0.25s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+  }
+  .btn-primary{
+    background:var(--rust);
+    color:var(--paper);
+    border:1px solid var(--rust);
+  }
+  .btn-primary:hover{ background:transparent; color:var(--rust); }
+  .btn-ghost{
+    border:1px solid var(--line);
+    color:var(--paper);
+  }
+  .btn-ghost:hover{ border-color:var(--steel); background:rgba(247,244,236,0.04); }
+  .btn:focus-visible{ outline:1px solid var(--rust); outline-offset:3px; }
+
+  @keyframes riseIn{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ---------- Title block (signature element) ---------- */
+  .title-block{
+    margin-top:70px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    overflow:hidden;
+    opacity:0;
+    animation:riseIn 0.9s ease forwards;
+    animation-delay:0.78s;
+  }
+  .tb-row{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+  }
+  .tb-cell{
+    padding:16px 20px;
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .tb-row:last-child .tb-cell{ border-bottom:none; }
+  .tb-cell:last-child{ border-right:none; }
+  .tb-cell .tb-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--steel);
+    margin-bottom:6px;
+  }
+  .tb-cell .tb-value{
+    font-size:0.92rem;
+    color:var(--paper);
+  }
+
+  @media (max-width:760px){
+    .tb-row{ grid-template-columns:repeat(2, 1fr); }
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section{
+    padding:120px 0;
+    border-top:1px solid var(--line);
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:64px;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .section-head h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(1.9rem, 4vw, 2.8rem);
+    color:var(--paper);
+  }
+  .sheet-no{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    color:var(--steel);
+    letter-spacing:0.08em;
+  }
+
+  /* ---------- Education: drawn as a structural elevation (foundation -> roof) ---------- */
+  .structure{
+    position:relative;
+    padding-left:36px;
+  }
+  .structure::before{
+    content:'';
+    position:absolute;
+    left:5px;
+    top:6px;
+    bottom:6px;
+    width:1px;
+    background:linear-gradient(to bottom, var(--rust), var(--line) 90%);
+  }
+  .level{
+    position:relative;
+    padding-bottom:56px;
+  }
+  .level:last-child{ padding-bottom:0; }
+  .level::before{
+    content:'';
+    position:absolute;
+    left:-36px;
+    top:6px;
+    width:11px; height:11px;
+    border-radius:50%;
+    background:var(--ink);
+    border:2px solid var(--rust);
+  }
+  .level-elev{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    color:var(--steel);
+    letter-spacing:0.1em;
+    margin-bottom:10px;
+    display:block;
+  }
+  .level h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.5rem;
+    color:var(--paper);
+    margin-bottom:6px;
+  }
+  .level .org{
+    font-size:0.98rem;
+    color:var(--steel-dim);
+    margin-bottom:10px;
+  }
+  .level .meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    color:rgba(247,244,236,0.5);
+  }
+  .level .tag{
+    display:inline-block;
+    margin-top:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--rust);
+    border:1px solid rgba(200,84,60,0.4);
+    padding:5px 12px;
+    border-radius:2px;
+  }
+
+  /* ---------- About / focus cards ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:64px;
+    align-items:start;
+  }
+  .about-text p{
+    font-size:1.05rem;
+    line-height:1.85;
+    color:rgba(247,244,236,0.78);
+    margin-bottom:20px;
+  }
+  .about-text p:last-child{ margin-bottom:0; }
+  .about-text strong{ color:var(--paper); font-weight:600; }
+
+  .spec-list{
+    border:1px solid var(--line);
+    border-radius:2px;
+  }
+  .spec-row{
+    display:flex;
+    justify-content:space-between;
+    padding:18px 22px;
+    border-bottom:1px solid var(--line);
+    font-size:0.88rem;
+  }
+  .spec-row:last-child{ border-bottom:none; }
+  .spec-row .k{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--steel);
+    letter-spacing:0.06em;
+  }
+  .spec-row .v{ color:var(--paper); text-align:right; }
+
+  @media (max-width:860px){
+    .about-grid{ grid-template-columns:1fr; gap:48px; }
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .contact-card{
+    background:var(--ink);
+    padding:36px 32px;
+    transition:background 0.25s ease;
+  }
+  .contact-card:hover{ background:var(--ink2); }
+  .contact-card .label{ margin-bottom:14px; }
+  .contact-card .value{
+    font-family:'Fraunces', serif;
+    font-size:1.3rem;
+    color:var(--paper);
+    word-break:break-word;
+  }
+  .contact-card a.value:hover{ color:var(--rust); }
+
+  @media (max-width:760px){
+    .contact-grid{ grid-template-columns:1fr; }
+  }
+
+  footer{
+    padding:48px 0 60px;
+    text-align:center;
+  }
+  footer .mono{
+    font-size:0.75rem;
+    color:rgba(247,244,236,0.4);
+    letter-spacing:0.08em;
+  }
+  footer .mono .rust{ color:var(--rust); }
+
+  @media (max-width:600px){
+    .sheet{ padding:0 20px; }
+    .nav-inner{ padding:16px 20px; }
+    .nav-links{ gap:16px; }
+    section{ padding:80px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blueprint-bg" aria-hidden="true"></div>
+<div class="corner-mark tl" aria-hidden="true"></div>
+<div class="corner-mark tr" aria-hidden="true"></div>
+<div class="corner-mark bl" aria-hidden="true"></div>
+<div class="corner-mark br" aria-hidden="true"></div>
+
+<div class="content">
+
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-mark"><span class="dot"></span>M. M. FAYAZ</div>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero sheet">
+    <div class="hero-eyebrow">
+      <span class="rule"></span>
+      <span class="label">Civil Engineering · RUET</span>
+    </div>
+
+    <h1 class="name">Md Mahadi<br><em>Fayaz</em></h1>
+
+    <div class="tagline-row">
+      <span class="tagline">
+        Born to lose, live to win
+        <svg viewBox="0 0 300 10" preserveAspectRatio="none"><path d="M0,3 Q150,11 300,3"/></svg>
+      </span>
+    </div>
+
+    <p class="hero-desc">
+      20-year-old Civil Engineering student at Rajshahi University of Engineering and Technology, based in Rajshahi, Bangladesh. Drawing foundations, reading loads, and building toward a career that holds weight.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-primary">Get in touch</a>
+      <a href="#education" class="btn btn-ghost">View background</a>
+    </div>
+
+    <div class="title-block">
+      <div class="tb-row">
+        <div class="tb-cell">
+          <div class="tb-label">Drawn by</div>
+          <div class="tb-value">Md Mahadi Fayaz</div>
+        </div>
+        <div class="tb-cell">
+          <div class="tb-label">Discipline</div>
+          <div class="tb-value">Civil Engineering</div>
+        </div>
+        <div class="tb-cell">
+          <div class="tb-label">Location</div>
+          <div class="tb-value">Rajshahi, BD</div>
+        </div>
+        <div class="tb-cell">
+          <div class="tb-label">Status</div>
+          <div class="tb-value">Age 20 · Undergrad</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="about" class="sheet">
+    <div class="section-head">
+      <h2>About</h2>
+      <span class="sheet-no mono">SHEET 01 / NOTES</span>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm <strong>Md Mahadi Fayaz</strong>, a Civil Engineering student at <strong>Rajshahi University of Engineering and Technology (RUET)</strong>. I'm drawn to the discipline because it sits exactly at the intersection of calculation and consequence — every beam, slab, and foundation has to hold up under a load that doesn't care about good intentions.</p>
+        <p>My tagline, <em>"Born to lose, live to win,"</em> says something about how I approach setbacks: not as verdicts, but as load tests. I'd rather fail early on something hard than play it safe on something small.</p>
+        <p>Outside coursework, I'm building the habits of an engineer who actually finishes things — site visits, structural sketches, and steady, unglamorous progress.</p>
+      </div>
+
+      <div class="spec-list">
+        <div class="spec-row"><span class="k mono">NAME</span><span class="v">Md Mahadi Fayaz</span></div>
+        <div class="spec-row"><span class="k mono">AGE</span><span class="v">20</span></div>
+        <div class="spec-row"><span class="k mono">MAJOR</span><span class="v">Civil Engineering</span></div>
+        <div class="spec-row"><span class="k mono">LOCATION</span><span class="v">Rajshahi, Bangladesh</span></div>
+        <div class="spec-row"><span class="k mono">PHONE</span><span class="v">01859858464</span></div>
+        <div class="spec-row"><span class="k mono">EMAIL</span><span class="v">mahadifayazruet49@gmail.com</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education" class="sheet">
+    <div class="section-head">
+      <h2>Education</h2>
+      <span class="sheet-no mono">SHEET 02 / ELEVATION</span>
+    </div>
+
+    <div class="structure">
+
+      <div class="level">
+        <span class="level-elev mono">EL. +03 — UNIVERSITY</span>
+        <h3>Rajshahi University of Engineering and Technology</h3>
+        <div class="org">B.Sc. in Civil Engineering</div>
+        <div class="meta mono">RAJSHAHI, BANGLADESH</div>
+        <span class="tag">Current</span>
+      </div>
+
+      <div class="level">
+        <span class="level-elev mono">EL. +02 — COLLEGE</span>
+        <h3>Notre Dame College</h3>
+        <div class="org">Higher Secondary Certificate (HSC)</div>
+        <div class="meta mono">DHAKA, BANGLADESH</div>
+      </div>
+
+      <div class="level">
+        <span class="level-elev mono">EL. +01 — SCHOOL</span>
+        <h3>Rani Bilashmoni Govt. Boys' High School</h3>
+        <div class="org">Secondary School Certificate (SSC)</div>
+        <div class="meta mono">GAZIPUR, BANGLADESH</div>
+      </div>
+
+      <div class="level">
+        <span class="level-elev mono">EL. ±00 — FOUNDATION</span>
+        <h3>Born to lose, live to win</h3>
+        <div class="org">Where the load path starts</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="contact" class="sheet">
+    <div class="section-head">
+      <h2>Contact</h2>
+      <span class="sheet-no mono">SHEET 03 / CONNECT</span>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="label">Phone</div>
+        <a class="value" href="tel:+8801859858464">01859858464</a>
+      </div>
+      <div class="contact-card">
+        <div class="label">Email</div>
+        <a class="value" href="mailto:mahadifayazruet49@gmail.com">mahadifayazruet49@gmail.com</a>
+      </div>
+      <div class="contact-card">
+        <div class="label">Location</div>
+        <div class="value">Rajshahi, Bangladesh</div>
+      </div>
+      <div class="contact-card">
+        <div class="label">University</div>
+        <div class="value">RUET — Civil Eng.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sheet">
+    <div class="mono">© 2026 MD MAHADI FAYAZ <span class="rust">·</span> DRAWN, NOT TRACED <span class="rust">·</span> RAJSHAHI, BD</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
